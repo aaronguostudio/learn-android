@@ -7,12 +7,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class NetworkActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -57,7 +62,13 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 }).start();
                 break;
             case R.id.post_button:
-                System.out.println(">>> POST");
+                System.out.println("test");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        requestDataByPost();
+                    }
+                }).start();
                 break;
             case R.id.parse_data:
                 System.out.println(">>> Parse");
@@ -72,7 +83,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
     * 3. update UI in main thread, use handler
     * 4. using runOnUiThread or mTextView.post as a wrap of handler
     * */
-    private void requestDataByGet() {
+    private void requestDataByGet () {
         try {
             URL url = new URL("http://www.imooc.com/api/teacher?type=2&page=1");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -110,6 +121,62 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void requestDataByPost () {
+        try {
+            System.out.println(">>>>>> requestDataByPost");
+            URL url = new URL("http://www.imooc.com/api/teacher");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(30*1000);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "UTF-8");
+            connection.setRequestProperty("Charset", "UTF-8");
+            connection.setRequestProperty("Accept-Charset", "UTF-8");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setUseCaches(false);
+            String data = "username=" + getEncodeValue("imooc") + "&number=" + getEncodeValue("123456");
+            OutputStream outputStream = connection.getOutputStream();
+            outputStream.write(data.getBytes());
+            outputStream.flush();
+            outputStream.close();
+            connection.connect();
+
+            int resCode = connection.getResponseCode();
+            String resMes = connection.getResponseMessage();
+            if (resCode == HttpURLConnection.HTTP_OK) {
+                System.out.println(">>>>>" + resCode + " " + resMes);
+                InputStream inputStream = connection.getInputStream();
+                mResult = streamToString(inputStream);
+                runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                mResult = decode(mResult);
+                                mTextView.setText(mResult);
+                            }
+                        }
+                );
+            } else {
+                Log.e(TAG, "run: error code: " + resCode + ", message: " + resMes);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @NotNull
+    private String getEncodeValue (String data) {
+        String encode = null;
+        try {
+            encode = URLEncoder.encode(data, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return encode;
     }
 
     private String streamToString (InputStream is) {
