@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -44,7 +45,11 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (msg.what == 1002) {
-                    tx.setText("1002");
+                    tx.setText(msg.arg1 + " " + msg.arg2 + " " + msg.obj);
+                }
+
+                if (msg.what == 1003) {
+                    tx.setText("1003");
                 }
             }
         };
@@ -59,7 +64,37 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
                         handler.sendEmptyMessage(1001);
+                        Message message = Message.obtain();
+                        message.what = 1002;
+                        message.arg1 = 1003;
+                        message.arg2 = 1004;
+                        message.obj = MainActivity.this;
+                        handler.sendMessage(message);
+
+
+                        Message message2 = Message.obtain();
+                        message2.what = 1001;
+                        handler.sendMessageAtTime(message2, SystemClock.uptimeMillis() + 3000);
+                        handler.sendEmptyMessageDelayed(Message.obtain().what = 1003, 5000);
+
+//                        final Runnable runnable = new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                //
+//                            }
+//                        };
+//
+//                        handler.post(runnable);
+//                        runnable.run();
+
                     }
                 }).start();
             }
