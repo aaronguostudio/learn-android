@@ -7,7 +7,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.aaronguostudio.getandpost.model.Lesson;
+import com.aaronguostudio.getandpost.model.LessonResult;
+
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +24,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NetworkActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -71,8 +79,38 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
                 }).start();
                 break;
             case R.id.parse_data:
-                System.out.println(">>> Parse");
+                handleJsonResult(mResult);
                 break;
+        }
+    }
+
+    private void handleJsonResult (String result) {
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            int status = jsonObject.getInt("status");
+            LessonResult lessonResult = new LessonResult();
+            lessonResult.setStatus(status);
+            List<Lesson> lessonItems = new ArrayList<>();
+
+            JSONArray lessons = jsonObject.getJSONArray("data");
+            if (lessons != null && lessons.length() > 0) {
+                for (int i = 0; i < lessons.length(); i++) {
+                    JSONObject lesson = (JSONObject) lessons.get(i);
+                    int id = lesson.getInt("id");
+                    int learner = lesson.getInt("learner");
+                    String name = lesson.getString("name");
+                    String picSmall = lesson.getString("picSmall");
+                    String picBig = lesson.getString("picBig");
+                    String description = lesson.getString("description");
+
+                    Lesson lessonItem = new Lesson(id, learner, name, picSmall, picBig, description);
+                    lessonItems.add(lessonItem);
+                }
+                lessonResult.setLessons(lessonItems);
+            }
+            mTextView.setText(lessonResult.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
