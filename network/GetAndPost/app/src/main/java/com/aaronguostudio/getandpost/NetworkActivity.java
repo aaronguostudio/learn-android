@@ -184,7 +184,6 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
             int resCode = connection.getResponseCode();
             String resMes = connection.getResponseMessage();
             if (resCode == HttpURLConnection.HTTP_OK) {
-                System.out.println(">>>>>" + resCode + " " + resMes);
                 InputStream inputStream = connection.getInputStream();
                 mResult = streamToString(inputStream);
                 runOnUiThread(
