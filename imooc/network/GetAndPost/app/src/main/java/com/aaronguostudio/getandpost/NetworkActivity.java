@@ -123,7 +123,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
     * */
     private void requestDataByGet () {
         try {
-            URL url = new URL("http://www.imooc.com/api/teacher?type=2&page=1");
+            URL url = new URL("https://www.imooc.com/api/teacher?type=2&page=1");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(30*1000);
             connection.setRequestMethod("GET");
@@ -164,7 +164,7 @@ public class NetworkActivity extends AppCompatActivity implements View.OnClickLi
     private void requestDataByPost () {
         try {
             System.out.println(">>>>>> requestDataByPost");
-            URL url = new URL("http://www.imooc.com/api/teacher");
+            URL url = new URL("https://www.imooc.com/api/teacher");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(30*1000);
             connection.setRequestMethod("POST");
