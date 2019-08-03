@@ -60,6 +60,9 @@ public class DownloadActivity extends Activity {
             }
         });
 
+        /*
+        * 应该使用静态方法，以免内存泄露。因为这里可能会持有 context object 的引用
+        * */
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {

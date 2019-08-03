@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">handler-counter</string>
+    <string name="maxTime">10</string>
+</resources>
